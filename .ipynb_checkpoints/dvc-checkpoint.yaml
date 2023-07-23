@@ -1,0 +1,18 @@
+stages:
+    load_data:
+        cmd: python src/stages/load_data.py --config=params.yaml
+        deps:
+        - src/stages/load_data.py
+        params:
+        - load_data
+        outs:
+        - "data/cleaned_data"
+    tokenize_data:
+        cmd: python src/stages/tokenize_data.py --config=params.yaml
+        deps:
+        - src/stages/tokenize_data.py
+        params:
+        - tokenize_data
+        outs:
+        - "src/data"
+    

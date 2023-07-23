@@ -1,0 +1,6 @@
+outs:
+- md5: 1b6de9b4493522515a72faddf2565403.dir
+  size: 15805807
+  nfiles: 3
+  hash: md5
+  path: stanfordSentimentTreebankRaw

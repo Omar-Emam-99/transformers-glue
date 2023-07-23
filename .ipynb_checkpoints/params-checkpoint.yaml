@@ -1,0 +1,9 @@
+data:
+    path_tree : "data/trainDevTestTrees_PTB/trees"
+
+load_data:
+    path : "data/cleaned_data"
+
+tokenize_data:
+    path : "src/data"
+    

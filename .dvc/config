@@ -1,0 +1,4 @@
+[core]
+    remote = myremote
+['remote "myremote"']
+    url = gdrive://1nt-5jWFSiuVtWmWwuBZYgl0Dzr9ArqLh/transformers-glue
