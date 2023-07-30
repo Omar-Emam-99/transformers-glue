@@ -13,7 +13,7 @@ def tokenize_data(path : Text) -> None :
         data[i] = f"{path['load_data']['path']}/{i}.csv"
     dataset = datasets.load_dataset('csv' , data_files = data)
     #create tokenizer form DISTILBERT model
-    model_ckp = "distilbert-base-uncased"
+    model_ckp = "bert-base-uncased"
     tokenizer = AutoTokenizer.from_pretrained(model_ckp)
     #apply tokenizer
     def tokenization(batch):
@@ -21,9 +21,10 @@ def tokenize_data(path : Text) -> None :
     #map tokenization function to all dataset
     dataset_encoded = dataset.map(tokenization, batched=True , batch_size=None)
     print(dataset_encoded)
-    #create json files to save our tokenization step 
+    #create Folder for data files
     if not os.path.exists(path['tokenize_data']['path']):
         os.mkdir(path['tokenize_data']['path'])
+    #create json files to save our tokenization step 
     for split , dataset in dataset_encoded.items() :
         dataset.to_json(f"{path['tokenize_data']['path']}/{split}.json")
 
@@ -34,4 +35,3 @@ if __name__ == '__main__':
     arg_parse.add_argument('--config' , dest='config' , required=True)
     args =  arg_parse.parse_args()
     tokenize_data(path=args.config)
-    

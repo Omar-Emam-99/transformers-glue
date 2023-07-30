@@ -27,8 +27,8 @@ stages:
       nfiles: 3
     - path: src/stages/preprocessing_data.py
       hash: md5
-      md5: 748f60975fc966bb56599b4cf921d34c
-      size: 1337
+      md5: 60fdb42b7ed27506cfac46e44f7af400
+      size: 1360
     params:
       params.yaml:
         tokenize_data:
@@ -36,6 +36,6 @@ stages:
     outs:
     - path: data/tokenized_data
       hash: md5
-      md5: 9cd5153b50d7d89ace10ff1c36526c9e.dir
-      size: 5824717
+      md5: 6dfa8ad91c51c0d16bfd52deb577c08e.dir
+      size: 7581760
       nfiles: 3
