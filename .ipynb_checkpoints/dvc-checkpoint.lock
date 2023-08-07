@@ -77,9 +77,9 @@ stages:
     outs:
     - path: artifacts/sentiment_classifier
       hash: md5
-      md5: 77ccf8a4a62c57a0778bee1974d94d6a.dir
-      size: 438012829
-      nfiles: 3
+      md5: 8fe71bbbe9fcf6bd8170c5ca1bb351c1.dir
+      size: 438011846
+      nfiles: 2
     - path: reports/train_loss.csv
       hash: md5
       md5: 4ab7a53e13da009acc73f27d0846f425

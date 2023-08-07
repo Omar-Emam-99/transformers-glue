@@ -34,3 +34,5 @@ stages:
             x: batches
             y: train_loss
             title: Training Losses Per Batches
+
+        

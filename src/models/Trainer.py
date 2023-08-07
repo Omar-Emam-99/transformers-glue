@@ -123,8 +123,8 @@ class Trainer :
         with open("reports/losses.json",'w') as fp :
             json.dump(losses,fp)
         """
-        pd.DataFrame({"train_loss":losses['train'],
-                      "batches": list(range(len(losses['train'])))})\
+        pd.DataFrame({"batches": list(range(len(losses['train']))) ,
+                      "train_loss":losses['train']})\
         .to_csv(os.path.join(self.train_args["reports_dir"], "train_loss.csv"))
                     
         model.save_pretrained(self.train_args["out_dir"])
