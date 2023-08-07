@@ -125,6 +125,6 @@ class Trainer :
         """
         pd.DataFrame({"batches": list(range(len(losses['train']))) ,
                       "train_loss":losses['train']})\
-        .to_csv(os.path.join(self.train_args["reports_dir"], "train_loss.csv"))
+        .to_csv(os.path.join(self.train_args["reports_dir"], "train_loss.csv"), index=False)
                     
         model.save_pretrained(self.train_args["out_dir"])

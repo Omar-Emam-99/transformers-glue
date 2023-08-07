@@ -49,8 +49,8 @@ stages:
       nfiles: 3
     - path: src/models/Trainer.py
       hash: md5
-      md5: c5ee95d1d0330ff9958893e712ff895a
-      size: 5270
+      md5: af51bd70d969df7a8611f46be8be23d0
+      size: 5283
     - path: src/models/modeling_bert.py
       hash: md5
       md5: a2cd4d22e32c10f8444c96042ec78ec2
@@ -77,10 +77,10 @@ stages:
     outs:
     - path: artifacts/sentiment_classifier
       hash: md5
-      md5: 77ccf8a4a62c57a0778bee1974d94d6a.dir
-      size: 438012829
-      nfiles: 3
+      md5: 1ee4abfc0a06be91f30aadf6a22aad68.dir
+      size: 438011846
+      nfiles: 2
     - path: reports/train_loss.csv
       hash: md5
-      md5: 4ab7a53e13da009acc73f27d0846f425
-      size: 6981
+      md5: 4b6873488561cd33eb53f540fdb8059d
+      size: 6025
