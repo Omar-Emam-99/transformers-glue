@@ -3,7 +3,21 @@ data:
 
 load_data:
     path : "data/cleaned_data"
-
-tokenize_data:
-    path : "src/data"
     
+tokenize_data:
+    path : "data/tokenized_data"
+
+
+trainer:
+    out_dir : "artifacts/sentiment_classifier"
+    reports_dir: "reports"
+    labels : 
+        - "very_negative"
+        - "negative"
+        - "nutral"
+        - "positive"
+        - "very_positive"
+    num_labels : 5
+    batch_size : 64
+    num_epochs : 2
+    learning_rate : 0.00005

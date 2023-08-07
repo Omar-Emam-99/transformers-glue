@@ -1,3 +1,4 @@
+"""Preprocessing data and tokenizing them with Bert-Tokenizer"""
 import os
 from transformers import AutoTokenizer
 import datasets , yaml

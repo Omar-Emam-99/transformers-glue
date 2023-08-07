@@ -1,0 +1,6 @@
+dvc
+dvc-s3
+dvc-gdrive
+awscli
+evaluate
+transformers==4.31.0

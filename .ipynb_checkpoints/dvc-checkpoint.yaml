@@ -8,11 +8,29 @@ stages:
         outs:
         - "data/cleaned_data"
     tokenize_data:
-        cmd: python src/stages/tokenize_data.py --config=params.yaml
+        cmd: python src/stages/preprocessing_data.py --config=params.yaml
         deps:
-        - src/stages/tokenize_data.py
+        - src/stages/preprocessing_data.py
+        - "data/cleaned_data"
         params:
         - tokenize_data
         outs:
-        - "src/data"
-    
+        - "data/tokenized_data"
+    train_data:
+        cmd: python src/stages/trainer.py --config=params.yaml
+        deps: 
+        - src/stages/trainer.py
+        - src/models/Trainer.py
+        - src/models/modeling_bert.py
+        - "data/tokenized_data"
+        params:
+        - trainer
+        outs:
+        - artifacts/sentiment_classifier
+        plots:
+        - reports/train_loss.csv:
+            templete: simple
+            x: batches
+            y: train_loss
+            title: Train Losses Per Steps
+        

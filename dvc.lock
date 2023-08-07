@@ -27,8 +27,8 @@ stages:
       nfiles: 3
     - path: src/stages/preprocessing_data.py
       hash: md5
-      md5: 60fdb42b7ed27506cfac46e44f7af400
-      size: 1360
+      md5: 508dc422b4de6969ef79e4f9959e1642
+      size: 1425
     params:
       params.yaml:
         tokenize_data:
@@ -39,3 +39,48 @@ stages:
       md5: 6dfa8ad91c51c0d16bfd52deb577c08e.dir
       size: 7581760
       nfiles: 3
+  train_data:
+    cmd: python src/stages/trainer.py --config=params.yaml
+    deps:
+    - path: data/tokenized_data
+      hash: md5
+      md5: 6dfa8ad91c51c0d16bfd52deb577c08e.dir
+      size: 7581760
+      nfiles: 3
+    - path: src/models/Trainer.py
+      hash: md5
+      md5: c3a46f660a82163646facd4ed1a5fdda
+      size: 5269
+    - path: src/models/modeling_bert.py
+      hash: md5
+      md5: a2cd4d22e32c10f8444c96042ec78ec2
+      size: 72255
+    - path: src/stages/trainer.py
+      hash: md5
+      md5: 3d472c42972f0cfee72a0ac33d4e573f
+      size: 512
+    params:
+      params.yaml:
+        trainer:
+          out_dir: artifacts/sentiment_classifier
+          reports_dir: reports
+          labels:
+          - very_negative
+          - negative
+          - nutral
+          - positive
+          - very_positive
+          num_labels: 5
+          batch_size: 64
+          num_epochs: 2
+          learning_rate: 5e-05
+    outs:
+    - path: artifacts/sentiment_classifier
+      hash: md5
+      md5: 83aedd761c6b2d41ff426d247200259b.dir
+      size: 438011846
+      nfiles: 2
+    - path: reports/train_loss.csv
+      hash: md5
+      md5: 46d403ad31ede03b0d5472738d4992c1
+      size: 6995
