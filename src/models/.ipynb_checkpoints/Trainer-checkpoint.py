@@ -119,10 +119,8 @@ class Trainer :
             acc = metric.compute()
             losses["accuracy"].append(acc) 
             print(f"\nTraining loss : {loss} ,Eval loss : {valid_loss} , Accuracy : {acc}")
-        """
-        with open("reports/losses.json",'w') as fp :
-            json.dump(losses,fp)
-        """
+      
+        
         pd.DataFrame({"batches": list(range(len(losses['train']))) ,
                       "train_loss":losses['train']})\
         .to_csv(os.path.join(self.train_args["reports_dir"], "train_loss.csv"), index=False)

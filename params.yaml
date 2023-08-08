@@ -8,7 +8,7 @@ tokenize_data:
     path : "data/tokenized_data"
 
 trainer:
-    out_dir : "artifacts/sentiment_classifier"
+    out_dir : artifacts/sentiment_classifier
     reports_dir : "reports"
     num_labels : 5
     labels:
@@ -20,3 +20,6 @@ trainer:
     batch_size : 64
     num_epochs : 2
     learning_rate : 0.00005
+    
+tester:
+    predicionts_dir: reports/predictions

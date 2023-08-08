@@ -4,3 +4,4 @@ dvc-gdrive
 awscli
 evaluate
 transformers==4.31.0
+xformers
