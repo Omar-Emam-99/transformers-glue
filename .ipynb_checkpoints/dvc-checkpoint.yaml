@@ -34,7 +34,15 @@ stages:
             x: batches
             y: train_loss
             title: Training Losses Per Batches
-    
-    
-        
-        
+            
+    test_data:
+        cmd: python src/stages/test_model.py --config="params.yaml" --predict="i love thos movie"
+        deps:
+        - src/stages/test_model.py
+        - "artifacts/sentiment_classifier"
+        params:
+        - tester
+        outs:
+        - "reports/predictions"
+        plots:
+        - predictions/scores.png

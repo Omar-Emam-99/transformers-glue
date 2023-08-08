@@ -84,3 +84,31 @@ stages:
       hash: md5
       md5: d0524c6db7464feaffcaeaf76606d8cb
       size: 6020
+  test_data:
+    cmd: python src/stages/test_model.py --config="params.yaml" --predict="i love
+      thos movie"
+    deps:
+    - path: artifacts/sentiment_classifier
+      hash: md5
+      md5: 1c1bd2830fc5ad479fff66e65f5311f4.dir
+      size: 438013704
+      nfiles: 2
+    - path: src/stages/test_model.py
+      hash: md5
+      md5: 6052558acb00dc6a9a2be3bac5e847f6
+      size: 3502
+    params:
+      params.yaml:
+        tester:
+          predicionts_dir: predictions
+          pridData: reports/predictions
+    outs:
+    - path: predictions/scores.png
+      hash: md5
+      md5: 04c3470120afa3e8bb0db8d2809b35c5
+      size: 15159
+    - path: reports/predictions
+      hash: md5
+      md5: 1c9e897eda2c490ab4eb07c61cbc405c.dir
+      size: 177
+      nfiles: 1

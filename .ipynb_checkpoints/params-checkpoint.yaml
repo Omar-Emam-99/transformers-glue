@@ -22,4 +22,5 @@ trainer:
     learning_rate : 0.00005
     
 tester:
-    predicionts_dir: reports/predictions
+    predicionts_dir: predictions
+    pridData: reports/predictions

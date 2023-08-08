@@ -3,12 +3,15 @@ import torch
 import evaluate
 from torch.utils.data import DataLoader
 import transformers
+import yaml
+import argparse
 from transformers import BertForSequenceClassification
 from datasets import load_dataset
 from transformers import AutoTokenizer , BertForSequenceClassification
 from transformers import TextClassificationPipeline
 from typing import Text
 import pandas as pd
+import matplotlib.pyplot as plt
 
 class Test :
     
@@ -20,9 +23,10 @@ class Test :
                 Trained Model path
             
         """
-        self.test_data = configs['tokenized_data']
+        self.test_data = configs['tokenize_data']
         self.saved_model_path = configs['trainer']
         self.predict_outs_dir = configs["tester"]["predicionts_dir"]
+        self.pridData = configs["tester"]["pridData"]
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
     def get_dataloader(self):
         """load tokenized test data and do some processes on it and convert it to batches"""
@@ -47,8 +51,8 @@ class Test :
         model.to(self.device)
         metric = evaluate.load("accuracy")
         for batch in self.get_dataloader():
-            batch = {k , v.to(self.device) if k , v in batch.items()}
-            with torch.zero_grad():
+            batch = {k : v.to(self.device) for k , v in batch.items()}
+            with torch.no_grad():
                 outputs = model(**batch)
             logits = outputs.logits
             predictions = torch.argmax(logits , dim=-1)
@@ -62,10 +66,30 @@ class Test :
         model , tokenizer = self.get_model()
         classifier = TextClassificationPipeline(model=model ,tokenizer=tokenizer ,return_all_scores=True)
         outs = classifier(input_text)
-        pd.DataFrame(outs).to_csv(f"{self.predict_outs_dir}")
-        print(f"Outputs Scores : {outs[0]}")
+        pd.DataFrame(outs[0]).to_csv(f"{self.pridData}/pred.csv")
+        return outs
+    
+    def predPlot(self , outputs):
+        df = pd.DataFrame(outs[0])
+        df.head()
+        df.plot.barh(x='label',y='score' ,color="red")
+        plt.title("Frequency Classes")
+        plt.savefig(f"{self.predict_outs_dir}/scores.png")
+        plt.show()
         
-        
-        
-        
-        
+if __name__ == '__main__':
+    
+    arg_parse = argparse.ArgumentParser()
+    arg_parse.add_argument('--config' , dest='config' , required=True)
+    arg_parse.add_argument('--predict' , dest='predict' , required=True)
+    args =  arg_parse.parse_args()
+    with open(args.config) as obj :
+        config_data = yaml.safe_load(obj)
+    
+    test_data = Test(config_data)
+    test_data.test()
+    outs = test_data.predict(args.predict)
+    test_data.predPlot(outs)
+    
+    
+    
