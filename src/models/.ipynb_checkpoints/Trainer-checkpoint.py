@@ -40,8 +40,10 @@ class Trainer :
             """
         self.train_args = config['trainer']
         self.data_args = config['tokenize_data']
+        self.labels = config["trainer"]["binary_labels"] if config["trainer"]["num_labels"] == 2 \
+        else config["trainer"]["three_classes_labels"] if config["trainer"]["num_labels"] == 3 else config["trainer"]["labels"] 
         
-    
+        
     def get_dataloader(self, data : Text):
         dataset = {}
         for data_type in ["train" , "dev"]:
@@ -57,8 +59,8 @@ class Trainer :
         model_ckpt = "bert-base-uncased"
         config = AutoConfig.from_pretrained(model_ckpt,
                                    num_labels = self.train_args['num_labels'],
-                                   id2label={i:k for i,k in enumerate(self.train_args['labels'])},
-                                   label2id={k:i for i,k in enumerate(self.train_args['labels'])})
+                                   id2label={i:k for i,k in enumerate(self.labels)},
+                                   label2id={k:i for i,k in enumerate(self.labels)})
 
         return (BertForSequenceClassification.from_pretrained(model_ckpt,config=config))
     
@@ -76,7 +78,7 @@ class Trainer :
         num_training_steps = self.train_args['num_epochs'] * num_of_train_data
         
         losses = defaultdict(list)
-        progress_bar = tqdm(range(num_training_steps))
+        progress_bar = tqdm(range(num_training_steps), colour="green")
         
         model = self.init_model()
         model.to(device)
@@ -126,3 +128,6 @@ class Trainer :
         .to_csv(os.path.join(self.train_args["reports_dir"], "train_loss.csv"), index=False)
                     
         model.save_pretrained(self.train_args["out_dir"])
+        
+        
+    

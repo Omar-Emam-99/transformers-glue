@@ -9,7 +9,26 @@ import pandas as pd
 import pytreebank , os , sys
 
 
-
+label_dict = {3 :{
+                1:0,
+                2:0,
+                3:1,
+                4:2,
+                5:2},
+             2 :{
+                1 : 0,
+                2 : 0,
+                3 : 1,
+                4 : 1,
+                5 : 1
+             }}
+def label_indetify(label, n_labels):
+    if n_labels == 3:
+        return label_dict[3][label]
+    elif n_labels == 2:
+        return label_dict[2][label]
+    else : 
+        return label - 1
 
 def load_datasets(path : Text) -> None:
     with open(path) as con:
@@ -39,11 +58,11 @@ def load_datasets(path : Text) -> None:
         #replace __label__ with space and convevrt it to int type
         #file["label"] = pd.to_numeric(file["label"].str.replace("__label__" , ""))
         #apply sub to get label range from[0-4] instead of [1-5]
-        file["label"] = file["label"].apply(lambda x : x - 1) 
+        file["label"] = file["label"].apply(lambda x : label_indetify(x, config["trainer"]["num_labels"])) 
         #change the pos of columns
         file=file[["text" , "label"]]
         dataset[data]= file
-    
+    print(dataset["train"]["label"])
     if not os.path.exists(config['load_data']['path']):
         os.mkdir(config['load_data']['path'])
     #create CSV file for Train , dev and test sets
@@ -59,5 +78,3 @@ if __name__ == '__main__':
     arg_parse.add_argument('--config' , dest='config' , required=True)
     args =  arg_parse.parse_args()
     load_datasets(path=args.config)
-    
-    

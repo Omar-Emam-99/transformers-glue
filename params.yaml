@@ -10,13 +10,20 @@ tokenize_data:
 trainer:
     out_dir : artifacts/sentiment_classifier
     reports_dir : "reports"
-    num_labels : 5
+    num_labels : 2
     labels:
     - "very_negative"
     - "negative"
     - "nutral"
     - "positive"
     - "very_positive"
+    three_class_labels:
+    - "negative"
+    - "nutral"
+    - "positive"
+    binary_labels:
+    - "negative"
+    - "positive"
     batch_size : 64
     num_epochs : 2
     learning_rate : 0.00005
