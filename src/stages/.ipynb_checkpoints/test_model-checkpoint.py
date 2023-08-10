@@ -4,6 +4,7 @@ import evaluate
 from torch.utils.data import DataLoader
 import transformers
 import yaml
+import os
 import argparse
 from transformers import BertForSequenceClassification
 from datasets import load_dataset
@@ -28,6 +29,8 @@ class Test :
         self.predict_outs_dir = configs["tester"]["predicionts_dir"]
         self.pridData = configs["tester"]["pridData"]
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
+    
+    
     def get_dataloader(self):
         """load tokenized test data and do some processes on it and convert it to batches"""
         test_data = load_dataset('json' , data_files=f"{self.test_data['path']}/test.json")
@@ -66,16 +69,19 @@ class Test :
         model , tokenizer = self.get_model()
         classifier = TextClassificationPipeline(model=model ,tokenizer=tokenizer ,return_all_scores=True)
         outs = classifier(input_text)
+        if not os.path.exists(self.pridData):
+            os.mkdir(self.pridData)
         pd.DataFrame(outs[0]).to_csv(f"{self.pridData}/pred.csv")
         return outs
     
-    def predPlot(self , outputs):
+    def predPlot(self , outputs , text):
         df = pd.DataFrame(outs[0])
         df.head()
         df.plot.barh(x='label',y='score' ,color="red")
-        plt.title("Frequency Classes")
+        plt.title(text)
+        if not os.path.exists(self.predict_outs_dir):
+            os.mkdir(self.predict_outs_dir)
         plt.savefig(f"{self.predict_outs_dir}/scores.png")
-        plt.show()
         
 if __name__ == '__main__':
     
@@ -89,7 +95,4 @@ if __name__ == '__main__':
     test_data = Test(config_data)
     test_data.test()
     outs = test_data.predict(args.predict)
-    test_data.predPlot(outs)
-    
-    
-    
+    test_data.predPlot(outs , args.predict)

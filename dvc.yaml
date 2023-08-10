@@ -34,6 +34,10 @@ stages:
             x: batches
             y: train_loss
             title: Training Losses Per Batches
+        - reports/eval_loss.csv:
+            x: batches
+            y: valid_loss
+            title: Validation Loss Per Batch
             
     test_data:
         cmd: python src/stages/test_model.py --config="params.yaml" --predict="i love thos movie"

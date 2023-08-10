@@ -5,8 +5,8 @@ stages:
     deps:
     - path: src/stages/load_data.py
       hash: md5
-      md5: c946bfa491cecb1d694d69be66dab5c4
-      size: 2408
+      md5: fa671c78b446f1a6ac3ab535055a7141
+      size: 2939
     params:
       params.yaml:
         load_data:
@@ -14,7 +14,7 @@ stages:
     outs:
     - path: data/cleaned_data
       hash: md5
-      md5: 49bbe04171319ed0a3f845f9df93a620.dir
+      md5: e74315ec1fd7ffe402f45c0acf04905b.dir
       size: 1262333
       nfiles: 3
   tokenize_data:
@@ -22,13 +22,13 @@ stages:
     deps:
     - path: data/cleaned_data
       hash: md5
-      md5: 49bbe04171319ed0a3f845f9df93a620.dir
+      md5: e74315ec1fd7ffe402f45c0acf04905b.dir
       size: 1262333
       nfiles: 3
     - path: src/stages/preprocessing_data.py
       hash: md5
-      md5: 60fdb42b7ed27506cfac46e44f7af400
-      size: 1360
+      md5: 1d7a7c80e3f8874253e49687f884dadb
+      size: 1408
     params:
       params.yaml:
         tokenize_data:
@@ -36,7 +36,7 @@ stages:
     outs:
     - path: data/tokenized_data
       hash: md5
-      md5: 6dfa8ad91c51c0d16bfd52deb577c08e.dir
+      md5: 7c965ae019a301d587d29bd993680d74.dir
       size: 7581760
       nfiles: 3
   train:
@@ -44,17 +44,17 @@ stages:
     deps:
     - path: data/tokenized_data
       hash: md5
-      md5: 6dfa8ad91c51c0d16bfd52deb577c08e.dir
+      md5: 7c965ae019a301d587d29bd993680d74.dir
       size: 7581760
       nfiles: 3
     - path: src/models/Trainer.py
       hash: md5
-      md5: 43201c893a1a3964970f558d95846815
-      size: 5189
+      md5: bb66a45ca4b23283bbf2b0faff0f437e
+      size: 5655
     - path: src/models/modeling_bert.py
       hash: md5
-      md5: a2cd4d22e32c10f8444c96042ec78ec2
-      size: 72255
+      md5: e0c0b5da3d38f42b78939e01cd1de0bc
+      size: 71343
     - path: src/stages/trainer.py
       hash: md5
       md5: 3d472c42972f0cfee72a0ac33d4e573f
@@ -64,39 +64,50 @@ stages:
         trainer:
           out_dir: artifacts/sentiment_classifier
           reports_dir: reports
-          num_labels: 5
+          num_labels: 3
           labels:
           - very_negative
           - negative
           - nutral
           - positive
           - very_positive
+          three_class_labels:
+          - negative
+          - nutral
+          - positive
+          binary_labels:
+          - negative
+          - positive
           batch_size: 64
           num_epochs: 2
           learning_rate: 5e-05
     outs:
     - path: artifacts/sentiment_classifier
       hash: md5
-      md5: 1c1bd2830fc5ad479fff66e65f5311f4.dir
-      size: 438013704
+      md5: c1449630941445ecade8acc670804f6a.dir
+      size: 438007460
       nfiles: 2
+    - path: reports/eval_loss.csv
+      hash: md5
+      md5: 37d4a1205dd0ef4682c687e0c411d1b5
+      size: 801
     - path: reports/train_loss.csv
       hash: md5
-      md5: d0524c6db7464feaffcaeaf76606d8cb
-      size: 6020
+      md5: 66f6ea534c55428333807ff619540dbe
+      size: 6086
   test_data:
     cmd: python src/stages/test_model.py --config="params.yaml" --predict="i love
       thos movie"
     deps:
     - path: artifacts/sentiment_classifier
       hash: md5
-      md5: 1c1bd2830fc5ad479fff66e65f5311f4.dir
-      size: 438013704
+      md5: c1449630941445ecade8acc670804f6a.dir
+      size: 438007460
       nfiles: 2
     - path: src/stages/test_model.py
       hash: md5
-      md5: 6052558acb00dc6a9a2be3bac5e847f6
-      size: 3502
+      md5: 30819354fad3d48b37a11c00deec6e26
+      size: 3658
     params:
       params.yaml:
         tester:
@@ -105,10 +116,10 @@ stages:
     outs:
     - path: predictions/scores.png
       hash: md5
-      md5: 04c3470120afa3e8bb0db8d2809b35c5
-      size: 15159
+      md5: a42ac61dc59fd52a95c00ff92d81c061
+      size: 12612
     - path: reports/predictions
       hash: md5
-      md5: 1c9e897eda2c490ab4eb07c61cbc405c.dir
-      size: 177
+      md5: 68f83158bd3e984fe55b9e9c13dcf746.dir
+      size: 104
       nfiles: 1

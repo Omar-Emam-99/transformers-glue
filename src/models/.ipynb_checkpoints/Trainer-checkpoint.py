@@ -41,7 +41,7 @@ class Trainer :
         self.train_args = config['trainer']
         self.data_args = config['tokenize_data']
         self.labels = config["trainer"]["binary_labels"] if config["trainer"]["num_labels"] == 2 \
-        else config["trainer"]["three_classes_labels"] if config["trainer"]["num_labels"] == 3 else config["trainer"]["labels"] 
+        else config["trainer"]["three_class_labels"] if config["trainer"]["num_labels"] == 3 else config["trainer"]["labels"] 
         
         
     def get_dataloader(self, data : Text):
@@ -83,7 +83,8 @@ class Trainer :
         model = self.init_model()
         model.to(device)
         
-        metric = evaluate.load("accuracy")
+        #declare f1 , precision , recall and accuracy
+        accuracy_metric = evaluate.load("accuracy")
         
         optimizer = AdamW(model.parameters(), lr=self.train_args["learning_rate"])
         LR_Schaduler =get_scheduler(name='linear' ,
@@ -117,17 +118,18 @@ class Trainer :
                 logits = outputs.logits
                 predictions = torch.argmax(logits, dim=-1)
                 #print(predictions)
-                metric.add_batch(predictions=predictions, references=batch["labels"])
-            acc = metric.compute()
-            losses["accuracy"].append(acc) 
-            print(f"\nTraining loss : {loss} ,Eval loss : {valid_loss} , Accuracy : {acc}")
+                accuracy_metric.add_batch(predictions=predictions, references=batch["labels"])
+            accuracy_metric = accuracy_metric.compute()
+            losses["accuracy"].append(all_metrics) 
+            print(f"\n-Training loss : {loss}\n-Eval loss : {valid_loss}\nAccuracy : {accuracy_metric}")
       
         
         pd.DataFrame({"batches": list(range(len(losses['train']))) ,
                       "train_loss":losses['train']})\
         .to_csv(os.path.join(self.train_args["reports_dir"], "train_loss.csv"), index=False)
-                    
+        
+        pd.DataFrame({"batches": list(range(len(losses['eval']))) ,
+                      "valid_loss":losses['eval']})\
+        .to_csv(os.path.join(self.train_args["reports_dir"], "eval_loss.csv"), index=False)
+        #Save model wieghts and configurations
         model.save_pretrained(self.train_args["out_dir"])
-        
-        
-    
