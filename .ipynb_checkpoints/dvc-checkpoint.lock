@@ -1,0 +1,86 @@
+schema: '2.0'
+stages:
+  load_data:
+    cmd: python src/stages/load_data.py --config=params.yaml
+    deps:
+    - path: src/stages/load_data.py
+      hash: md5
+      md5: c946bfa491cecb1d694d69be66dab5c4
+      size: 2408
+    params:
+      params.yaml:
+        load_data:
+          path: data/cleaned_data
+    outs:
+    - path: data/cleaned_data
+      hash: md5
+      md5: 49bbe04171319ed0a3f845f9df93a620.dir
+      size: 1262333
+      nfiles: 3
+  tokenize_data:
+    cmd: python src/stages/preprocessing_data.py --config=params.yaml
+    deps:
+    - path: data/cleaned_data
+      hash: md5
+      md5: 49bbe04171319ed0a3f845f9df93a620.dir
+      size: 1262333
+      nfiles: 3
+    - path: src/stages/preprocessing_data.py
+      hash: md5
+      md5: 60fdb42b7ed27506cfac46e44f7af400
+      size: 1360
+    params:
+      params.yaml:
+        tokenize_data:
+          path: data/tokenized_data
+    outs:
+    - path: data/tokenized_data
+      hash: md5
+      md5: 6dfa8ad91c51c0d16bfd52deb577c08e.dir
+      size: 7581760
+      nfiles: 3
+  train:
+    cmd: python src/stages/trainer.py --config=params.yaml
+    deps:
+    - path: data/tokenized_data
+      hash: md5
+      md5: 6dfa8ad91c51c0d16bfd52deb577c08e.dir
+      size: 7581760
+      nfiles: 3
+    - path: src/models/Trainer.py
+      hash: md5
+      md5: c5ee95d1d0330ff9958893e712ff895a
+      size: 5270
+    - path: src/models/modeling_bert.py
+      hash: md5
+      md5: a2cd4d22e32c10f8444c96042ec78ec2
+      size: 72255
+    - path: src/stages/trainer.py
+      hash: md5
+      md5: 3d472c42972f0cfee72a0ac33d4e573f
+      size: 512
+    params:
+      params.yaml:
+        trainer:
+          out_dir: artifacts/sentiment_classifier
+          reports_dir: reports
+          num_labels: 5
+          labels:
+          - very_negative
+          - negative
+          - nutral
+          - positive
+          - very_positive
+          batch_size: 64
+          num_epochs: 2
+          learning_rate: 5e-05
+    outs:
+    - path: artifacts/sentiment_classifier
+      hash: md5
+      md5: 8fe71bbbe9fcf6bd8170c5ca1bb351c1.dir
+      size: 438011846
+      nfiles: 2
+    - path: reports/train_loss.csv
+      hash: md5
+      md5: 4ab7a53e13da009acc73f27d0846f425
+      size: 6981

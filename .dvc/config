@@ -1,0 +1,8 @@
+[core]
+    remote = s3-stroage
+['remote "s3-stroage"']
+    url = s3://isemantics-dvc/glue-tasks/
+['remote "myremote"']
+    url = gdrive://1nt-5jWFSiuVtWmWwuBZYgl0Dzr9ArqLh/transformers-glue
+    gdrive_client_id = 1060585333977-ps2dct3bo5n69gqr5f68e4jihbos32h6.apps.googleusercontent.com
+    gdrive_client_secret = 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
