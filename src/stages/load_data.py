@@ -8,7 +8,6 @@ from typing import Text
 import pandas as pd
 import pytreebank , os , sys
 
-
 label_dict = {3 :{
                 1:0,
                 2:0,
@@ -22,6 +21,7 @@ label_dict = {3 :{
                 4 : 1,
                 5 : 1
              }}
+
 def label_indetify(label, n_labels):
     if n_labels == 3:
         return label_dict[3][label]

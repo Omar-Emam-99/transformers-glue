@@ -5,6 +5,7 @@ stages:
         - src/stages/load_data.py
         params:
         - load_data
+        - trainer
         outs:
         - "data/cleaned_data"
         

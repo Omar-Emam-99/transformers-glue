@@ -10,7 +10,7 @@ tokenize_data:
 trainer:
     out_dir : artifacts/sentiment_classifier
     reports_dir : "reports"
-    num_labels : 2
+    num_labels : 5
     labels:
     - "very_negative"
     - "negative"

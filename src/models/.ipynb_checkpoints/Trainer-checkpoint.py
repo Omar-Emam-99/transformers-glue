@@ -83,7 +83,7 @@ class Trainer :
         model = self.init_model()
         model.to(device)
         
-        #declare f1 , precision , recall and accuracy
+        #accuracy
         accuracy_metric = evaluate.load("accuracy")
         
         optimizer = AdamW(model.parameters(), lr=self.train_args["learning_rate"])
@@ -119,9 +119,9 @@ class Trainer :
                 predictions = torch.argmax(logits, dim=-1)
                 #print(predictions)
                 accuracy_metric.add_batch(predictions=predictions, references=batch["labels"])
-            accuracy_metric = accuracy_metric.compute()
-            losses["accuracy"].append(all_metrics) 
-            print(f"\n-Training loss : {loss}\n-Eval loss : {valid_loss}\nAccuracy : {accuracy_metric}")
+            acc = accuracy_metric.compute()
+            losses["accuracy"].append(acc) 
+            print(f"\n-Training loss : {loss}\n-Eval loss : {valid_loss}\nAccuracy : {acc}")
       
         
         pd.DataFrame({"batches": list(range(len(losses['train']))) ,
