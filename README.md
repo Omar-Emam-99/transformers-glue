@@ -1,5 +1,6 @@
 # transformers-glue
-This repo for training transformer-based models to solve GLUE tasks for NLP
+This repo for training transformer-based models to solve GLUE tasks for NLP 
+this task about sentiment classification on Movies review with 5 class [very negative ,negative , nutral , positive , very positive] and using DVC for verisionig data ,doing experiments and making plots .
 
 ## Stage 1 : Load data from banktree and convert it into csv format
 > load_data.py module for that jop 
