@@ -57,6 +57,7 @@ Training a Text Classifier
 
 <!-- dataset -->
 ### Dataset 
+---
 The Stanford Sentiment Treebank : movie reviews of five labels ['very negative','negative','nutral','postive','postive'] in PTB Tree format. [<a href='https://nlp.stanford.edu/~socherr/EMNLP2013_RNTN.pdf'>paper</a>]
 * For difficulty of dataset with 5 labels to get high score, this project solve classification task in three ways :
 1. 5 labels.
@@ -66,6 +67,7 @@ The Stanford Sentiment Treebank : movie reviews of five labels ['very negative',
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built-with
+---
 - Using Datasets liberary to obtain SST dataset.
 - Using Transformers liberary to load Model and tokenizer 
 - Using Evaluate liberary to evaluating our model.
@@ -78,7 +80,7 @@ The Stanford Sentiment Treebank : movie reviews of five labels ['very negative',
 
 <!-- Installation -->
 #### Installation
-
+---
 1. clone the repo 
     ```
     git clone https://github.com/Omar-Emam-99/transformers-glue.git
@@ -89,6 +91,7 @@ The Stanford Sentiment Treebank : movie reviews of five labels ['very negative',
     ```
 <!-- Usage -->
 ## Usage 
+---
 1. Pull data from S3 :
     ```
       dvc pull 
