@@ -41,7 +41,8 @@ class Trainer :
         self.train_args = config['trainer']
         self.data_args = config['tokenize_data']
         self.labels = config["trainer"]["binary_labels"] if config["trainer"]["num_labels"] == 2 \
-        else config["trainer"]["three_class_labels"] if config["trainer"]["num_labels"] == 3 else config["trainer"]["labels"] 
+        else config["trainer"]["three_class_labels"] if config["trainer"]["num_labels"] == 3 else
+        config["trainer"]["labels"] 
         
         
     def get_dataloader(self, data : Text):
@@ -69,9 +70,11 @@ class Trainer :
         #Get data and convet it to batches
         train_data = self.get_dataloader(self.data_args['path'])
         eval_data = self.get_dataloader(self.data_args['path']) 
-        train_dataloader = DataLoader(train_data["train"],shuffle=True ,batch_size = self.train_args['batch_size'])
-        eval_dataloader = DataLoader(eval_data["dev"], batch_size = self.train_args['batch_size'])
+        train_dataloader = DataLoader(train_data["train"],
+                                      shuffle=True,
+                                      batch_size =self.train_args['batch_size'])
         
+        eval_dataloader = DataLoader(eval_data["dev"], batch_size = self.train_args['batch_size'])
         num_of_train_data = len(train_dataloader)
         
         #initialize a learning rate schaduler
