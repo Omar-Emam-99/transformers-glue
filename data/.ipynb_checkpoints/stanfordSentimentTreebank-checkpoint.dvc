@@ -1,6 +1,0 @@
-outs:
-- md5: d162e2cee67340c992ff103d010cae2d.dir
-  size: 39389500
-  nfiles: 20
-  hash: md5
-  path: stanfordSentimentTreebank
