@@ -1,6 +1,6 @@
 outs:
-- md5: d162e2cee67340c992ff103d010cae2d.dir
-  size: 39389500
-  nfiles: 20
+- md5: a77816dd1b2574e7b2056daae44474dc.dir
+  size: 20382369
+  nfiles: 14
   hash: md5
   path: stanfordSentimentTreebank

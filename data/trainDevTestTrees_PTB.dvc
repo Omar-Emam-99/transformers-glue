@@ -1,6 +1,6 @@
 outs:
-- md5: 75b5b5074865306ce7b7c4ad6969df9c.dir
-  size: 7250594
-  nfiles: 9
+- md5: 016056cd38cc2d8904647f3de78d492f.dir
+  size: 6690980
+  nfiles: 8
   hash: md5
   path: trainDevTestTrees_PTB

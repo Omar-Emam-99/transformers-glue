@@ -21,6 +21,13 @@ src_dir = Path.cwd()
 sys.path.append(str(src_dir))
 from src.models.modeling_bert import *
 
+from sklearn.metrics import (
+    confusion_matrix,
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score
+)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -41,7 +48,7 @@ class Trainer :
         self.train_args = config['trainer']
         self.data_args = config['tokenize_data']
         self.labels = config["trainer"]["binary_labels"] if config["trainer"]["num_labels"] == 2 \
-        else config["trainer"]["three_class_labels"] if config["trainer"]["num_labels"] == 3 else
+        else config["trainer"]["three_class_labels"] if config["trainer"]["num_labels"] == 3 else \
         config["trainer"]["labels"] 
         
         
@@ -65,6 +72,30 @@ class Trainer :
 
         return (BertForSequenceClassification.from_pretrained(model_ckpt,config=config))
     
+    @staticmethod
+    def compute_metrics(preds , labels) -> dict:
+        """
+        Computes classification metrics based on predicted and actual labels.
+
+        Parameters:
+        - pred: a tuple containing the predicted labels and actual labels
+
+        Returns:
+        - a dictionary containing the classification metrics
+
+        """
+        f1 = f1_score(labels, preds , average='weighted')
+        precision = precision_score(labels, preds , average='weighted')
+        recall = recall_score(labels, preds , average='weighted')
+        acc = accuracy_score(labels, preds)
+        return {
+            "accuracy": acc,
+            "precision": precision,
+            "recall": recall,
+            "f1": f1
+        }
+        
+
     def train(self):
         """train the model, return losses , accuracy and save it"""
         #Get data and convet it to batches
@@ -88,7 +119,7 @@ class Trainer :
         
         #accuracy
         accuracy_metric = evaluate.load("accuracy")
-        
+        metrics = []
         optimizer = AdamW(model.parameters(), lr=self.train_args["learning_rate"])
         LR_Schaduler =get_scheduler(name='linear' ,
                                     optimizer= optimizer,
@@ -120,13 +151,18 @@ class Trainer :
                 losses['eval'].append(float(valid_loss))
                 logits = outputs.logits
                 predictions = torch.argmax(logits, dim=-1)
-                #print(predictions)
-                accuracy_metric.add_batch(predictions=predictions, references=batch["labels"])
+                accuracy_metric.add_batch(predictions=predictions,references=batch["labels"])
+                com_metr = Trainer.compute_metrics(predictions.cpu() , batch["labels"].cpu())
+                print("---------------------------------------------------------------------------")
+                print(f"""eval_loss : {valid_loss} ,Precision : {com_metr["precision"]},Recall : {com_metr["recall"]} ,F1-Score : {com_metr["f1"]} ,Accuracy : {com_metr["accuracy"]}""")
+                print("---------------------------------------------------------------------------")
+                
+                
             acc = accuracy_metric.compute()
-            losses["accuracy"].append(acc) 
-            print(f"\n-Training loss : {loss}\n-Eval loss : {valid_loss}\nAccuracy : {acc}")
-      
-        
+            losses["accuracy"].append(acc)
+            print("---------------------------------------------------------------------------")
+            print(f"\n-Training loss : {loss}\n-Eval loss : {valid_loss}\n{acc}")
+            print("---------------------------------------------------------------------------")
         pd.DataFrame({"batches": list(range(len(losses['train']))) ,
                       "train_loss":losses['train']})\
         .to_csv(os.path.join(self.train_args["reports_dir"], "train_loss.csv"), index=False)
