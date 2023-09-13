@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader
 import transformers
 import yaml
 import os
+import json
 import argparse
 from transformers import BertForSequenceClassification
 from datasets import load_dataset
@@ -25,11 +26,12 @@ class Test :
             
         """
         self.test_data = configs['tokenize_data']
+        self.train_args = configs["trainer"]
         self.saved_model_path = configs['trainer']
         self.predict_outs_dir = configs["tester"]["predicionts_dir"]
         self.pridData = configs["tester"]["pridData"]
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
-    
+        
     
     def get_dataloader(self):
         """load tokenized test data and do some processes on it and convert it to batches"""
@@ -52,7 +54,7 @@ class Test :
     def test(self):
         model , _ = self.get_model()
         model.to(self.device)
-        metric = evaluate.load("accuracy")
+        metric = evaluate.combine(["accuracy", "f1", "precision", "recall"])
         for batch in self.get_dataloader():
             batch = {k : v.to(self.device) for k , v in batch.items()}
             with torch.no_grad():
@@ -60,9 +62,12 @@ class Test :
             logits = outputs.logits
             predictions = torch.argmax(logits , dim=-1)
             metric.add_batch(predictions=predictions, references=batch["labels"])
-        accuracy = metric.compute()
+        metrics = metric.compute()
 
-        print(f"Test data accuracy : {accuracy}.")
+        print(f"{metrics}")
+        
+        with open(os.path.join(self.train_args["metrics_path"],"test_metrics.json") , 'w') as file :
+            json.dump(metrics,file)
     
     def predict(self , input_text : Text):
         """predict any new review sentance"""

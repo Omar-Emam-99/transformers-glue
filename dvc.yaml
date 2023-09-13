@@ -51,3 +51,6 @@ stages:
         - "reports/predictions"
         plots:
         - predictions/scores.png
+        metrics:
+        - metrics/vaild_metrics.json
+        - metrics/test_metrics.json
