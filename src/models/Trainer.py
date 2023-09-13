@@ -1,8 +1,6 @@
 """Train SequenceClassifierModel"""
 from pathlib import Path
-import argparse
-import sys
-import json
+import argparse , sys , json
 from tqdm.auto import tqdm
 import evaluate
 from datasets import load_dataset
@@ -11,23 +9,14 @@ import pandas as pd
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
-from torch.utils.data import DataLoader, Dataset
 from torch.optim import AdamW , Adam
 from collections import defaultdict
-from transformers import get_scheduler
-from transformers import AutoConfig
+from transformers import get_scheduler , AutoConfig
 from transformers.modeling_outputs import SequenceClassifierOutput
-src_dir = Path.cwd()
-sys.path.append(str(src_dir))
+#src_dir = Path.cwd()
+#sys.path.append(str(src_dir))
 from src.models.modeling_bert import *
 
-from sklearn.metrics import (
-    confusion_matrix,
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score
-)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -72,30 +61,7 @@ class Trainer :
 
         return (BertForSequenceClassification.from_pretrained(model_ckpt,config=config))
     
-    @staticmethod
-    def compute_metrics(preds , labels) -> dict:
-        """
-        Computes classification metrics based on predicted and actual labels.
-
-        Parameters:
-        - pred: a tuple containing the predicted labels and actual labels
-
-        Returns:
-        - a dictionary containing the classification metrics
-
-        """
-        f1 = f1_score(labels, preds , average='weighted')
-        precision = precision_score(labels, preds , average='weighted')
-        recall = recall_score(labels, preds , average='weighted')
-        acc = accuracy_score(labels, preds)
-        return {
-            "accuracy": acc,
-            "precision": precision,
-            "recall": recall,
-            "f1": f1
-        }
-        
-
+    
     def train(self):
         """train the model, return losses , accuracy and save it"""
         #Get data and convet it to batches
@@ -118,7 +84,7 @@ class Trainer :
         model.to(device)
         
         #accuracy
-        accuracy_metric = evaluate.load("accuracy")
+        accuracy_metric = evaluate.combine(["accuracy", "f1", "precision", "recall"])
         metrics = []
         optimizer = AdamW(model.parameters(), lr=self.train_args["learning_rate"])
         LR_Schaduler =get_scheduler(name='linear' ,
@@ -141,7 +107,7 @@ class Trainer :
                 LR_Schaduler.step()
                 optimizer.zero_grad()
                 progress_bar.update(1)
-
+                
             model.eval()
             for batch in eval_dataloader:
                 batch = {k: v.to(device) for k, v in batch.items()}
@@ -152,17 +118,19 @@ class Trainer :
                 logits = outputs.logits
                 predictions = torch.argmax(logits, dim=-1)
                 accuracy_metric.add_batch(predictions=predictions,references=batch["labels"])
-                com_metr = Trainer.compute_metrics(predictions.cpu() , batch["labels"].cpu())
-                print("---------------------------------------------------------------------------")
-                print(f"""eval_loss : {valid_loss} ,Precision : {com_metr["precision"]},Recall : {com_metr["recall"]} ,F1-Score : {com_metr["f1"]} ,Accuracy : {com_metr["accuracy"]}""")
-                print("---------------------------------------------------------------------------")
+                #metric = Trainer.compute_metrics(predictions.cpu() , batch["labels"].cpu())
                 
                 
-            acc = accuracy_metric.compute()
-            losses["accuracy"].append(acc)
+            valid_metrics = {"valid_{}".format(k):v for k,v in accuracy_metric.compute().items()}
+            losses["metrics"].append(valid_metrics)
             print("---------------------------------------------------------------------------")
-            print(f"\n-Training loss : {loss}\n-Eval loss : {valid_loss}\n{acc}")
-            print("---------------------------------------------------------------------------")
+            print(f"\nTraining loss : {loss}\nEval loss : {valid_loss}\n{valid_metrics}")
+            print("---------------------------------------------------------------------------") 
+            
+        print(valid_metrics)   
+        with open(os.path.join(self.train_args["metrics_path"],"vaild_metrics.json"),'w') as file :
+            json.dump(valid_metrics,file)
+            
         pd.DataFrame({"batches": list(range(len(losses['train']))) ,
                       "train_loss":losses['train']})\
         .to_csv(os.path.join(self.train_args["reports_dir"], "train_loss.csv"), index=False)
