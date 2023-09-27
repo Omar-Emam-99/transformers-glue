@@ -1,21 +1,24 @@
 """Train SequenceClassifierModel"""
-from pathlib import Path
-import argparse , sys , json
-from tqdm.auto import tqdm
-import evaluate
-from datasets import load_dataset
-from typing import Text
-import pandas as pd
 import torch
-from torch.utils.tensorboard import SummaryWriter
-from torch.utils.data import DataLoader
-from torch.optim import AdamW , Adam
+import evaluate
+import pandas as pd
+import numpy as np
+from typing import Text
+from pathlib import Path
+from tqdm.auto import tqdm
+import argparse , sys , json
+from datasets import load_dataset
 from collections import defaultdict
+from src.models.modeling_bert import *
+from torch.optim import AdamW , Adam
+from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 from transformers import get_scheduler , AutoConfig
+import functools , operator
+from sklearn.metrics import confusion_matrix
 from transformers.modeling_outputs import SequenceClassifierOutput
 #src_dir = Path.cwd()
 #sys.path.append(str(src_dir))
-from src.models.modeling_bert import *
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -38,7 +41,7 @@ class Trainer :
         self.data_args = config['tokenize_data']
         self.labels = config["trainer"]["binary_labels"] if config["trainer"]["num_labels"] == 2 \
         else config["trainer"]["three_class_labels"] if config["trainer"]["num_labels"] == 3 else \
-        config["trainer"]["labels"] 
+        config["trainer"]["labels"]
         
         
     def get_dataloader(self, data : Text):
@@ -71,7 +74,9 @@ class Trainer :
                                       shuffle=True,
                                       batch_size =self.train_args['batch_size'])
         
-        eval_dataloader = DataLoader(eval_data["dev"], batch_size = self.train_args['batch_size'])
+        eval_dataloader = DataLoader(eval_data["dev"],
+                                     batch_size = self.train_args['batch_size'])
+        
         num_of_train_data = len(train_dataloader)
         
         #initialize a learning rate schaduler
@@ -80,12 +85,15 @@ class Trainer :
         losses = defaultdict(list)
         progress_bar = tqdm(range(num_training_steps), colour="green")
         
+        #initialize the model
         model = self.init_model()
         model.to(device)
         
         #accuracy
         accuracy_metric = evaluate.combine(["accuracy", "f1", "precision", "recall"])
-        metrics = []
+        #Confusion Metrix 
+        cfm_metric = evaluate.load("BucketHeadP65/confusion_matrix")
+        preds_labels = defaultdict()
         optimizer = AdamW(model.parameters(), lr=self.train_args["learning_rate"])
         LR_Schaduler =get_scheduler(name='linear' ,
                                     optimizer= optimizer,
@@ -103,9 +111,11 @@ class Trainer :
                 loss = outputs.loss
                 loss.backward()
                 losses['train'].append(float(loss))
+                
                 optimizer.step()
                 LR_Schaduler.step()
                 optimizer.zero_grad()
+                
                 progress_bar.update(1)
                 
             model.eval()
@@ -113,30 +123,45 @@ class Trainer :
                 batch = {k: v.to(device) for k, v in batch.items()}
                 with torch.no_grad():
                     outputs = model(**batch)
+                    
                 valid_loss = outputs.loss
                 losses['eval'].append(float(valid_loss))
                 logits = outputs.logits
                 predictions = torch.argmax(logits, dim=-1)
-                accuracy_metric.add_batch(predictions=predictions,references=batch["labels"])
-                #metric = Trainer.compute_metrics(predictions.cpu() , batch["labels"].cpu())
                 
+                
+                accuracy_metric.add_batch(predictions=predictions,references=batch["labels"])
+                losses['preds'].append(predictions.cpu().numpy())
+                losses['labels'].append(batch['labels'].cpu().numpy())
                 
             valid_metrics = {"valid_{}".format(k):v for k,v in accuracy_metric.compute().items()}
             losses["metrics"].append(valid_metrics)
             print("---------------------------------------------------------------------------")
             print(f"\nTraining loss : {loss}\nEval loss : {valid_loss}\n{valid_metrics}")
             print("---------------------------------------------------------------------------") 
-            
-        print(valid_metrics)   
+        
+
+        labels_cm = np.concatenate(losses['labels'])
+        pred_cm = np.concatenate(losses['preds'])
+        cm = confusion_matrix(y_true=labels_cm ,y_pred=pred_cm)
+        #print(cm)
+        
         with open(os.path.join(self.train_args["metrics_path"],"vaild_metrics.json"),'w') as file :
             json.dump(valid_metrics,file)
-            
+        
+        #store training losses per batches to plot them    
         pd.DataFrame({"batches": list(range(len(losses['train']))) ,
                       "train_loss":losses['train']})\
         .to_csv(os.path.join(self.train_args["reports_dir"], "train_loss.csv"), index=False)
-        
+        #store validation losses per batches to plot them
         pd.DataFrame({"batches": list(range(len(losses['eval']))) ,
                       "valid_loss":losses['eval']})\
         .to_csv(os.path.join(self.train_args["reports_dir"], "eval_loss.csv"), index=False)
-        #Save model wieghts and configurations
+        
+        #save Confusion Metrics to csv file to plot
+        pd.DataFrame(cm ,columns=self.labels,index=self.labels).to_csv(os.path.join(self.train_args["reports_dir"],
+                                                                                 "confusion_metrix.csv"))
+        
+        
+            #Save model wieghts and configurations
         model.save_pretrained(self.train_args["out_dir"])

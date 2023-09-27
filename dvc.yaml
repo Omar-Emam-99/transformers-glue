@@ -40,6 +40,7 @@ stages:
             y: valid_loss
             title: Validation Loss Per Batch
             
+            
     test_data:
         cmd: python src/stages/test_model.py --config="params.yaml" --predict="i love thos movie"
         deps:

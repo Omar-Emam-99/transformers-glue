@@ -29,7 +29,7 @@ stages:
           - negative
           - positive
           batch_size: 64
-          num_epochs: 2
+          num_epochs: 1
           learning_rate: 5e-05
           metrics_path: metrics
     outs:
@@ -70,8 +70,8 @@ stages:
       nfiles: 3
     - path: src/models/Trainer.py
       hash: md5
-      md5: 37efc4e3bf2be6addfa6b773388a6d1f
-      size: 6302
+      md5: 063cd9a7cfbbbfa5a1c6b1149ab89861
+      size: 7267
     - path: src/models/modeling_bert.py
       hash: md5
       md5: cad06487c458b7854cc513320b06d6fa
@@ -100,23 +100,23 @@ stages:
           - negative
           - positive
           batch_size: 64
-          num_epochs: 2
+          num_epochs: 1
           learning_rate: 5e-05
           metrics_path: metrics
     outs:
     - path: artifacts/sentiment_classifier
       hash: md5
-      md5: 1ce54240c0625f3434d7a56309ce26d1.dir
+      md5: 213a4dd94f0e0b365614f13e5871521b.dir
       size: 438004352
       nfiles: 2
     - path: reports/eval_loss.csv
       hash: md5
-      md5: 2f02a22312f683ebeea69ca4c6176cb3
-      size: 815
+      md5: 4039f47004866bd62908006436787056
+      size: 413
     - path: reports/train_loss.csv
       hash: md5
-      md5: 9661115f3cde04603346a188792a1b84
-      size: 6187
+      md5: 023a1a56ed1735458a338a977afaab78
+      size: 3029
   test_data:
     cmd: python src/stages/test_model.py --config="params.yaml" --predict="i love
       thos movie"
